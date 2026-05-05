@@ -6,6 +6,7 @@ from datetime import date
 from typing import Annotated
 
 import typer
+from typer import Option
 from rich.console import Console
 from rich.table import Table
 
@@ -17,6 +18,12 @@ from comboios.endpoints.trains import TrainsAPI
 from comboios.models import JourneyOption, Station, StationStop, TrainJourney
 
 app = typer.Typer(name="comboios", no_args_is_help=True)
+
+
+def _version_callback(value: bool) -> None:
+    if value:
+        console.print("comboios 0.1.0")
+        raise typer.Exit()
 console = Console()
 err_console = Console(stderr=True)
 
@@ -161,6 +168,15 @@ def main(
     timeout: Annotated[
         float, typer.Option("--timeout", help="Request timeout in seconds")
     ] = 30.0,
+    version: Annotated[
+        bool,
+        typer.Option(
+            "--version",
+            callback=_version_callback,
+            is_eager=True,
+            help="Show version",
+        ),
+    ] = False,
 ) -> None:
     ctx.ensure_object(dict)
     ctx.obj["json"] = json_output
