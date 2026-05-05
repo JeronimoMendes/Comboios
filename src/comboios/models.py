@@ -73,11 +73,16 @@ class TrainJourney(BaseModel):
     train_stops: list[JourneyStop] = Field(alias="trainStops")
 
 
+class Constraint(BaseModel):
+    code: str
+    description: str
+
+
 class BasePrice(BaseModel):
     travel_class: int = Field(alias="travelClass")
     price_type: int = Field(alias="priceType")
     cents_value: int = Field(alias="centsValue")
-    constraints: list[str] = Field(default_factory=list)
+    constraints: list[Constraint] = Field(default_factory=list)
 
 
 class TravelSection(BaseModel):

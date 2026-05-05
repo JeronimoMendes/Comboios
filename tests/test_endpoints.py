@@ -139,7 +139,12 @@ async def test_journeys_search(client: ComboiosClient) -> None:
                                 "travelClass": 2,
                                 "priceType": 1,
                                 "centsValue": 2500,
-                                "constraints": [],
+                                "constraints": [
+                                    {
+                                        "code": "NON_REFUNDABLE",
+                                        "description": "Não Reembolsável",
+                                    }
+                                ],
                             }
                         ],
                         "travelSections": [
@@ -165,4 +170,5 @@ async def test_journeys_search(client: ComboiosClient) -> None:
     assert result.departure_station.code == "94-1"
     assert len(result.outward_trip) == 1
     assert result.outward_trip[0].base_prices[0].cents_value == 2500
+    assert result.outward_trip[0].base_prices[0].constraints[0].code == "NON_REFUNDABLE"
     assert route.called
