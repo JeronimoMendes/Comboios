@@ -6,7 +6,6 @@ from datetime import date
 from typing import Annotated
 
 import typer
-from typer import Option
 from rich.console import Console
 from rich.table import Table
 

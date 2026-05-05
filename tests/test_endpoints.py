@@ -135,7 +135,12 @@ async def test_journeys_search(client: ComboiosClient) -> None:
                         "transferCount": 0,
                         "saleableOnline": True,
                         "basePrices": [
-                            {"travelClass": 2, "priceType": 1, "centsValue": 2500, "constraints": []}
+                            {
+                                "travelClass": 2,
+                                "priceType": 1,
+                                "centsValue": 2500,
+                                "constraints": [],
+                            }
                         ],
                         "travelSections": [
                             {
