@@ -1,6 +1,6 @@
 import os
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import httpx
 
@@ -38,7 +38,7 @@ class CpConfigProvider:
 
     async def get_credentials(self) -> CpCredentials:
         if self._credentials is not None and self._expires_at is not None:
-            if datetime.now(UTC) < self._expires_at:
+            if datetime.now(timezone.utc) < self._expires_at:
                 return self._credentials
         await self.refresh()
         if self._credentials is None:
@@ -64,7 +64,7 @@ class CpConfigProvider:
         except KeyError as exc:
             raise AuthenticationError(f"Missing key in fe-config.json: {exc}") from exc
 
-        self._expires_at = datetime.now(UTC) + timedelta(seconds=self._ttl_seconds)
+        self._expires_at = datetime.now(timezone.utc) + timedelta(seconds=self._ttl_seconds)
 
     def invalidate_cache(self) -> None:
         self._credentials = None
