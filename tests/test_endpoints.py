@@ -142,7 +142,7 @@ async def test_journeys_search(client: ComboiosClient) -> None:
                                 "constraints": [
                                     {
                                         "code": "NON_REFUNDABLE",
-                                        "description": "Não Reembolsável",
+                                        "designation": "Não Reembolsável",
                                     }
                                 ],
                             }

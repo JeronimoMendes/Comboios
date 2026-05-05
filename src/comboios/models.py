@@ -75,7 +75,7 @@ class TrainJourney(BaseModel):
 
 class Constraint(BaseModel):
     code: str
-    description: str
+    designation: str
 
 
 class BasePrice(BaseModel):
