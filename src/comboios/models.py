@@ -137,7 +137,7 @@ class JourneySearchResult(BaseModel):
 class JourneySearchRequest(BaseModel):
     arrival_station_code: str = Field(alias="arrivalStationCode")
     classes: list[int]
-    config_id: int = Field(alias="configID")
+    config_id: int = Field(alias="configID", default=200)
     departure_station_code: str = Field(alias="departureStationCode")
     lang: str = "PT"
     quantities: list[dict]
