@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from typing import Any
+
 import httpx
 
 from comboios.config import CpConfigProvider
-from comboios.exceptions import APIError, AuthenticationError, NotFoundError
+from comboios.exceptions import APIError, NotFoundError
 
 _BROWSER_HEADERS = {
     "User-Agent": (
@@ -76,7 +78,7 @@ class ComboiosClient:
         self,
         method: str,
         path: str,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> httpx.Response:
         url = f"{self._base_url}/{path.lstrip('/')}"
         headers = await self._auth_headers()
@@ -105,7 +107,7 @@ class ComboiosClient:
         self,
         method: str,
         path: str,
-        **kwargs: object,
+        **kwargs: Any,
     ) -> httpx.Response:
         url = f"{self._base_url}/{path.lstrip('/')}"
         headers = self._auth_headers_sync()
@@ -131,17 +133,17 @@ class ComboiosClient:
         return response
 
     # --- sync wrappers ---
-    def get(self, path: str, **kwargs: object) -> httpx.Response:
+    def get(self, path: str, **kwargs: Any) -> httpx.Response:
         return self._request_with_retry_sync("GET", path, **kwargs)
 
-    def post(self, path: str, **kwargs: object) -> httpx.Response:
+    def post(self, path: str, **kwargs: Any) -> httpx.Response:
         return self._request_with_retry_sync("POST", path, **kwargs)
 
     # --- async wrappers ---
-    async def aget(self, path: str, **kwargs: object) -> httpx.Response:
+    async def aget(self, path: str, **kwargs: Any) -> httpx.Response:
         return await self._request_with_retry("GET", path, **kwargs)
 
-    async def apost(self, path: str, **kwargs: object) -> httpx.Response:
+    async def apost(self, path: str, **kwargs: Any) -> httpx.Response:
         return await self._request_with_retry("POST", path, **kwargs)
 
     async def aclose(self) -> None:

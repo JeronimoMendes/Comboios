@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import date
-
 from comboios.client import ComboiosClient
 from comboios.models import JourneySearchRequest, JourneySearchResult
 

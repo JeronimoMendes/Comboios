@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from comboios.client import ComboiosClient
-from comboios.models import Station, StationBoard, StationSimple
+from comboios.models import Station, StationBoard
 
 
 class StationsAPI:
@@ -26,14 +26,18 @@ class StationsAPI:
         query_lower = query.lower()
         return [s for s in all_stations if query_lower in s.designation.lower()]
 
-    async def get_timetable(self, station_id: str, date: str, start_time: str | None = None) -> StationBoard:
+    async def get_timetable(
+        self, station_id: str, date: str, start_time: str | None = None
+    ) -> StationBoard:
         params = {}
         if start_time is not None:
             params["start"] = start_time
         resp = await self._client.aget(f"/stations/{station_id}/timetable/{date}", params=params)
         return StationBoard.model_validate(resp.json())
 
-    def get_timetable_sync(self, station_id: str, date: str, start_time: str | None = None) -> StationBoard:
+    def get_timetable_sync(
+        self, station_id: str, date: str, start_time: str | None = None
+    ) -> StationBoard:
         params = {}
         if start_time is not None:
             params["start"] = start_time

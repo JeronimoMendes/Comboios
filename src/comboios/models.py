@@ -140,9 +140,9 @@ class JourneySearchRequest(BaseModel):
     config_id: int = Field(alias="configID", default=200)
     departure_station_code: str = Field(alias="departureStationCode")
     lang: str = "PT"
-    quantities: list[dict]
+    quantities: list[dict[str, object]]
     return_date: str | None = Field(alias="returnDate", default=None)
-    return_time_limit: dict = Field(
+    return_time_limit: dict[str, object] = Field(
         alias="returnTimeLimit",
         default_factory=lambda: {
             "endTime": "23:59",
@@ -153,7 +153,7 @@ class JourneySearchRequest(BaseModel):
     saleable_only: bool = Field(alias="saleableOnly", default=False)
     search_type: int = Field(alias="searchType", default=3)
     services: list[str] = Field(default_factory=list)
-    time_limit: dict = Field(
+    time_limit: dict[str, object] = Field(
         alias="timeLimit",
         default_factory=lambda: {
             "endTime": "23:59",

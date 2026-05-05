@@ -5,7 +5,6 @@ import sys
 from datetime import date
 from typing import Annotated
 
-import httpx
 import typer
 from rich.console import Console
 from rich.table import Table
@@ -35,7 +34,10 @@ def _resolve_station(stations_api: StationsAPI, query: str) -> str:
         err_console.print(f"[red]No station found for '{query}'[/red]")
         raise typer.Exit(1)
     if len(results) > 1:
-        err_console.print(f"[yellow]Multiple matches for '{query}', using first:[/yellow] {results[0].designation}")
+        err_console.print(
+            f"[yellow]Multiple matches for '{query}', using first:[/yellow] "
+            f"{results[0].designation}"
+        )
     return results[0].code
 
 
@@ -44,9 +46,13 @@ def _output(data: object, format_mode: str | None, as_json: bool) -> None:
         _rich_output(data)
     elif format_mode == "json" or as_json or not _is_tty():
         if isinstance(data, list):
-            console.print(json.dumps([_serialize(item) for item in data], indent=2, ensure_ascii=False))
+            out = json.dumps(
+                [_serialize(item) for item in data], indent=2, ensure_ascii=False
+            )
+            console.print(out)
         else:
-            console.print(json.dumps(_serialize(data), indent=2, ensure_ascii=False))
+            out = json.dumps(_serialize(data), indent=2, ensure_ascii=False)
+            console.print(out)
     else:
         _rich_output(data)
 
@@ -115,7 +121,8 @@ def _rich_output(data: object) -> None:
 def _print_journey_option(opt: JourneyOption) -> None:
     price = opt.base_prices[0].cents_value / 100 if opt.base_prices else None
     price_str = f"€{price:.2f}" if price else "N/A"
-    table = Table(title=f"{opt.departure_time} → {opt.arrival_time}  ({opt.duration})  {price_str}")
+    title = f"{opt.departure_time} → {opt.arrival_time}  ({opt.duration})  {price_str}"
+    table = Table(title=title)
     table.add_column("#")
     table.add_column("Train")
     table.add_column("Service")
@@ -141,11 +148,19 @@ def _print_journey_option(opt: JourneyOption) -> None:
 @app.callback()
 def main(
     ctx: typer.Context,
-    json_output: Annotated[bool, typer.Option("--json", help="Force JSON output")] = False,
-    format_mode: Annotated[str | None, typer.Option("--format", help="Output format: json or table")] = None,
-    no_cache: Annotated[bool, typer.Option("--no-cache", help="Bypass credential cache")] = False,
+    json_output: Annotated[
+        bool, typer.Option("--json", help="Force JSON output")
+    ] = False,
+    format_mode: Annotated[
+        str | None, typer.Option("--format", help="Output format: json or table")
+    ] = None,
+    no_cache: Annotated[
+        bool, typer.Option("--no-cache", help="Bypass credential cache")
+    ] = False,
     debug: Annotated[bool, typer.Option("--debug", help="Verbose logging")] = False,
-    timeout: Annotated[float, typer.Option("--timeout", help="Request timeout in seconds")] = 30.0,
+    timeout: Annotated[
+        float, typer.Option("--timeout", help="Request timeout in seconds")
+    ] = 30.0,
 ) -> None:
     ctx.ensure_object(dict)
     ctx.obj["json"] = json_output
@@ -165,9 +180,16 @@ def _get_client(ctx: typer.Context) -> ComboiosClient:
 @app.command()
 def stations(
     ctx: typer.Context,
-    list_all: Annotated[bool, typer.Option("--list", "-l", help="List all stations")] = False,
-    search: Annotated[str | None, typer.Option("--search", "-s", help="Search stations by name")] = None,
-    get: Annotated[str | None, typer.Option("--get", "-g", help="Get station timetable code")] = None,
+    list_all: Annotated[
+        bool, typer.Option("--list", "-l", help="List all stations")
+    ] = False,
+    search: Annotated[
+        str | None, typer.Option("--search", "-s", help="Search stations by name")
+    ] = None,
+    get: Annotated[
+        str | None,
+        typer.Option("--get", "-g", help="Get station timetable code"),
+    ] = None,
 ) -> None:
     """List or search stations."""
     with _get_client(ctx) as client:
@@ -179,7 +201,6 @@ def stations(
             result = api.search_sync(search)
             _output(result, ctx.obj.get("format"), ctx.obj.get("json", False))
         elif get:
-            # get timetable for station
             err_console.print("Use 'timetable' command for station timetables")
             raise typer.Exit(1)
 
@@ -188,8 +209,12 @@ def stations(
 def timetable(
     ctx: typer.Context,
     station_id: str,
-    date: Annotated[str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")] = date.today().isoformat(),
-    time: Annotated[str | None, typer.Option("--time", "-t", help="Start time HH:MM")] = None,
+    date: Annotated[
+        str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")
+    ] = date.today().isoformat(),
+    time: Annotated[
+        str | None, typer.Option("--time", "-t", help="Start time HH:MM")
+    ] = None,
 ) -> None:
     """Get station timetable."""
     with _get_client(ctx) as client:
@@ -202,7 +227,9 @@ def timetable(
 def train(
     ctx: typer.Context,
     train_number: str,
-    date: Annotated[str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")] = date.today().isoformat(),
+    date: Annotated[
+        str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")
+    ] = date.today().isoformat(),
 ) -> None:
     """Get train journey details."""
     with _get_client(ctx) as client:
@@ -220,10 +247,18 @@ def journey_search(
     ctx: typer.Context,
     origin: str,
     destination: str,
-    date: Annotated[str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")] = date.today().isoformat(),
-    time: Annotated[str | None, typer.Option("--time", "-t", help="Start time HH:MM")] = None,
-    travel_class: Annotated[int, typer.Option("--class", "-c", help="Travel class (1 or 2)")] = 2,
-    passengers: Annotated[int, typer.Option("--passengers", "-p", help="Number of passengers")] = 1,
+    date: Annotated[
+        str, typer.Option("--date", "-d", help="Date YYYY-MM-DD")
+    ] = date.today().isoformat(),
+    time: Annotated[
+        str | None, typer.Option("--time", "-t", help="Start time HH:MM")
+    ] = None,
+    travel_class: Annotated[
+        int, typer.Option("--class", "-c", help="Travel class (1 or 2)")
+    ] = 2,
+    passengers: Annotated[
+        int, typer.Option("--passengers", "-p", help="Number of passengers")
+    ] = 1,
 ) -> None:
     """Search for journeys between two stations."""
     with _get_client(ctx) as client:
@@ -232,7 +267,9 @@ def journey_search(
         destination_id = _resolve_station(stations_api, destination)
 
         api = JourneysAPI(client)
-        result = api.search_sync(origin_id, destination_id, date, time, travel_class, passengers)
+        result = api.search_sync(
+            origin_id, destination_id, date, time, travel_class, passengers
+        )
         _output(result.outward_trip, ctx.obj.get("format"), ctx.obj.get("json", False))
 
 
