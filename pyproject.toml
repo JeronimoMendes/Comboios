@@ -1,6 +1,6 @@
 [project]
 name = "comboios"
-version = "0.1.1"
+version = "0.1.2"
 description = "Python CLI for querying the Comboios de Portugal (CP.pt) internal API"
 readme = "README.md"
 authors = [
